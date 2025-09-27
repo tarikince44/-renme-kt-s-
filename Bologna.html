@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bologna Öğrenme ve Program Çıktısı Analiz ve Geliştirme Aracı</title>
+    <style>
+        :root {
+            --primary-color: #0d47a1; 
+            --secondary-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #f4f7fc;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        
+        .info-box {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .input-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .custom-analysis-area {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px dashed var(--primary-color);
+            border-radius: 8px;
+            background-color: #fdfdfd;
+        }
+
+        .custom-analysis-area h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            min-height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        /* Düzeltme Önerileri Stilleri */
+        .detailed-feedback-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .detailed-feedback-header {
+             background-color: var(--secondary-color);
+             padding: 15px;
+             font-size: 1.1em;
+             font-weight: bold;
+             border-bottom: 1px solid var(--border-color);
+        }
+        .detailed-feedback-body ul {
+            list-style-type: none;
+            padding: 15px;
+            margin: 0;
+        }
+        .detailed-feedback-body li {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        .detailed-feedback-body li .icon {
+            font-size: 20px;
+            margin-right: 12px;
+            line-height: 1.4;
+        }
+        .detailed-feedback-body li.error { background-color: #ffebee; color: #c62828; }
+        .detailed-feedback-body li.warning { background-color: #fff3e0; color: #e65100; }
+        .detailed-feedback-body li.success { background-color: #e8f5e9; color: #2e7d32; }
+        .detailed-feedback-body li.info { background-color: #e3f2fd; color: #0277bd; }
+        .detailed-feedback-body li strong {
+            font-weight: bold;
+            display: block;
+        }
+
+        .full-width-button {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        
+        select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button.secondary {
+             background-color: var(--success-color);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #sonucAlani, #ozelSonucAlani { margin-top: 30px; display: none; }
+        .program-ciktilari-kutusu { background-color: #fff8e1; border: 1px solid #ffecb3; padding: 20px; margin-bottom: 25px; border-radius: 8px; }
+        .program-ciktilari-kutusu h3 { margin-top: 0; color: #f57f17; }
+        .program-ciktilari-kutusu ul { padding-left: 0; margin-bottom: 0; list-style-type: none; }
+        .program-ciktilari-kutusu li { margin-bottom: 5px; }
+        .analiz-blogu { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .analiz-blogu h4 { background-color: var(--secondary-color); padding: 15px; margin: 0; border-bottom: 1px solid var(--border-color); font-size: 1.1em; }
+        .analiz-icerik { padding: 15px; }
+        .feedback-item { display: flex; align-items: flex-start; margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+        .feedback-item:last-child { margin-bottom: 0; }
+        .feedback-item.success { background-color: #e8f5e9; }
+        .feedback-item.warning { background-color: #fff3e0; }
+        .feedback-item.error { background-color: #ffebee; }
+        .feedback-item.info { background-color: #e3f2fd; }
+        .feedback-item .icon { font-size: 20px; margin-right: 12px; line-height: 1.2; }
+        .feedback-item .text .status { font-weight: bold; display: block; margin-bottom: 3px; }
+        .feedback-item .text .status.success { color: var(--success-color); }
+        .feedback-item .text .status.warning { color: var(--warning-color); }
+        .feedback-item .text .status.error { color: var(--error-color); }
+        .feedback-item .text .status.info { color: var(--info-color); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Akıllı Öğrenme Çıktısı Analiz ve Geliştirme Aracı</h1>
+        <div class="info-box">
+           Önce Yüksekokul/Fakülte ve Bölüm seçimi yapınız. Ardından otomatik çıktı oluşturabilir veya kendi çıktınızı analiz edebilirsiniz.
+        </div>
+
+        <div class="input-area">
+            <div class="form-group">
+                <label for="okulSecimMenu">Yüksekokul / Fakülte:</label>
+                <select id="okulSecimMenu">
+                    <option value="">Lütfen seçim yapın...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bolumSecimMenu">Bölüm:</label>
+                <select id="bolumSecimMenu" disabled>
+                    <option value="">Önce Yüksekokul seçin...</option>
+                </select>
+            </div>
+             <div class="form-group">
+                <label for="dersSecimMenu">Ders (Otomatik Üretim İçin):</label>
+                <select id="dersSecimMenu" disabled>
+                    <option value="">Önce Bölüm seçin...</option>
+                </select>
+            </div>
+            <div class="full-width-button">
+                <button onclick="ciktilariOlusturVeAnalizEt()">Otomatik Oluştur ve Analiz Et</button>
+            </div>
+        </div>
+
+        <div class="custom-analysis-area">
+            <h3>Kendi Öğrenme Çıktınızı Analiz Edin ve Geliştirin</h3>
+            <textarea id="ozelCiktiInput" placeholder="Analiz etmek istediğiniz öğrenme çıktısını buraya yazınız... (Analiz için yukarıdan bir bölüm seçilmiş olmalıdır)"></textarea>
+            <button class="secondary" onclick="ozelCiktiyiAnalizEt()">Analiz Et ve Düzeltme Öner</button>
+        </div>
+        <div id="ozelSonucAlani"></div>
+
+        <hr>
+
+        <div id="sonucAlani"></div>
+    </div>
+
+    <script>
+        // --- Veri ve Kural Setleri (Bu kısım değişiklik olmadığı için daraltılmıştır) ---
+        const PROGRAM_CIKTILARI_SABLONLARI = { /* ... Öncekiyle aynı ... */ 'havaUlastirma': [ "Sivil havacılık alanında ulusal ve uluslararası düzenlemeler hakkında bilgi sahibidir.", "Havacılık emniyeti, güvenliği ve kalite yönetimi sistemlerini anlama ve uygulama becerisine sahiptir.", "Havaalanı ve havayolu operasyonlarını yönetmek için gerekli temel bilgi ve becerileri kullanır.", "Alanıyla ilgili verileri analiz ederek operasyonel sorunlara çözüm önerileri geliştirir.", "Havacılık sektöründe takım çalışması yapabilme ve etkili iletişim kurma becerisi sergiler.", "Mesleki ve etik sorumluluk bilincine sahiptir.", "Sektördeki teknolojik gelişmeleri takip eder ve yaşam boyu öğrenme bilinciyle kendini geliştirir.", "Müşteri ilişkileri yönetimi ve yolcu hizmetleri süreçlerini etkin bir şekilde yürütür." ], 'bilgisayarAkcadag': [ "Algoritma tasarımı, programlama ve yazılım geliştirme süreçlerinde yetkinlik sahibidir.", "Bilgisayar donanımı, işletim sistemleri ve ağları hakkında temel bilgiye sahiptir.", "Veri tabanı tasarımı, yönetimi ve sorgulama becerilerini uygular.", "Yazılım projelerinde analiz, tasarım ve test aşamalarını yürütebilir.", "Takım içerisinde görev alabilir ve bilişim projelerinde etkin iletişim kurar.", "Bilişim etiği ve siber güvenlik konularında farkındalık sahibidir.", "Alanındaki yeni teknolojileri ve programlama dillerini öğrenmeye açıktır.", "Kullanıcı ihtiyaçlarını analiz ederek uygun yazılım çözümleri geliştirir." ], 'isletme': [ "İşletme yönetimi, pazarlama, finans ve muhasebe gibi temel işlevler hakkında kapsamlı bilgi sahibidir.", "Ekonomik ve yönetsel problemleri analiz etme ve çözüm önerileri geliştirme becerisi gösterir.", "Stratejik düşünme, liderlik ve girişimcilik yetkinliklerine sahiptir.", "İşletme verilerini yorumlayarak karar alma süreçlerine katkıda bulunur.", "Sözlü ve yazılı iletişim becerilerini iş hayatında etkin bir şekilde kullanır.", "İş etiği ve sosyal sorumluluk ilkelerine uygun davranır.", "Sürekli değişen piyasa koşullarını takip eder ve kendini mesleki olarak yeniler.", "Proje yönetimi ve takım çalışması prensiplerini uygular." ], 'veterinerlik': [ "Temel veteriner anatomi, fizyoloji ve zootekni konularında teorik bilgiye sahiptir.", "Hayvan sağlığı, beslenmesi ve refahı ile ilgili temel uygulamaları yapma becerisi gösterir.", "Laboratuvar teknikleri, hijyen ve sanitasyon kurallarını bilir ve uygular.", "Hayvan hastalıklarının teşhisi ve önlenmesi için veri toplar ve analiz eder.", "Hayvan sahipleri ve meslektaşları ile etkili iletişim kurar.", "Mesleki etik kurallara ve hayvan haklarına saygılıdır.", "Veteriner sağlık alanındaki bilimsel ve teknolojik gelişmeleri takip eder.", "Sürü sağlığı yönetimi ve koruyucu hekimlik ilkelerini uygular." ], 'otomotiv': [ "Otomotiv sistemlerinin (motor, güç aktarma, şasi) yapısını, çalışmasını ve bakımını bilir.", "Temel arıza teşhis yöntemlerini ve onarım tekniklerini uygular.", "Otomotiv sektöründe kullanılan teknik resim, ölçme ve kontrol aletleri hakkında bilgi sahibidir.", "Arıza tespiti için teknik verileri ve diagnostik cihazları analiz eder.", "Müşterilere teknik konularda açık ve anlaşılır bilgi verir.", "İş sağlığı, güvenliği ve çevre koruma yönetmeliklerine uyar.", "Otomotiv teknolojisindeki (hibrit, elektrikli araçlar vb.) yenilikleri takip eder.", "Atölye ortamında takım çalışması ve iş organizasyonu becerisi gösterir." ], 'muhasebe': [ "Genel muhasebe ilkelerini ve tek düzen hesap planını bilir.", "Mali tabloları düzenleme ve yorumlama becerisine sahiptir.", "Muhasebe paket programlarını kullanarak ticari işlemleri kaydeder.", "İşletmenin finansal performansını temel rasyolar kullanarak analiz eder.", "Mesleki konularda paydaşlarla (müşteri, yönetici) etkili iletişim kurar.", "Muhasebe meslek etiği ve yasal düzenlemelere uygun hareket eder.", "Vergi ve sosyal güvenlik mevzuatındaki değişiklikleri takip eder.", "Ekip içinde muhasebe süreçlerinin yürütülmesine katkı sağlar." ], 'restorasyon': [ "Geleneksel yapı malzemelerini ve tekniklerini tanır.", "Rölöve, restitüsyon ve restorasyon projelerinin çizim ve belgeleme aşamalarını yürütür.", "Tarihi eserlerin korunması ve onarımı ile ilgili temel ilkelere hakimdir.", "Tarihi yapılardaki bozulmaları analiz ederek uygun onarım yöntemlerini belirler.", "Farklı disiplinlerden uzmanlarla (mimar, arkeolog) etkin bir iletişim ve işbirliği kurar.", "Kültürel mirasın korunmasına yönelik etik sorumluluk bilinci taşır.", "Koruma ve restorasyon alanındaki yeni malzeme ve teknolojileri takip eder.", "Şantiye ortamında iş organizasyonu ve takım çalışması becerisi gösterir." ], 'mekatronik': [ "Mekanik, elektrik-elektronik ve bilgisayar sistemlerini bir arada kullanma becerisine sahiptir.", "Sensörler, eyleyiciler ve mikrodenetleyiciler gibi mekatronik bileşenleri bilir ve uygular.", "Hidrolik-pnömatik ve otomasyon sistemlerinin temel prensiplerini anlar.", "Mekatronik sistemlerdeki arızaları analiz eder ve sistematik çözüm yolları geliştirir.", "Teknik raporlama ve sunum becerilerini kullanarak projelerde etkin iletişim sağlar.", "Mühendislik etiği ve iş güvenliği kurallarına uygun çalışır.", "Endüstri 4.0 ve robotik gibi alanlardaki teknolojik gelişmeleri takip eder.", "Disiplinlerarası projelerde takım üyesi olarak sorumluluk alır." ], 'elektrik': [ "Doğru akım ve alternatif akım devre analizlerini yapar.", "Elektrik tesisat projelerini çizme ve uygulama becerisine sahiptir.", "Temel elektrik makinelerinin (trafo, motor) çalışma prensiplerini ve bağlantılarını bilir.", "Elektrik sistemlerindeki arızaları ölçü aletleri kullanarak analiz eder ve giderir.", "Teknik konularda sözlü ve yazılı iletişim kurma becerisi gösterir.", "Mesleki etik, iş sağlığı ve güvenliği kurallarına uyar.", "Enerji verimliliği ve yenilenebilir enerji kaynakları gibi güncel konuları takip eder.", "Proje bazlı çalışmalarda ekip üyesi olarak görev alır." ], 'buro': [ "Büro yönetimi, dosyalama ve arşivleme tekniklerini uygular.", "Ofis yazılımlarını ve büro makinelerini etkin bir şekilde kullanır.", "Mesleki yazışma kurallarını ve etkili iletişim becerilerini sergiler.", "İş süreçlerini analiz ederek ofis verimliliğini artıracak önerilerde bulunur.", "Kurum içi ve dışı paydaşlarla profesyonel bir iletişim dili kullanır.", "İş etiği, gizlilik ve veri koruma ilkelerine bağlı kalır.", "Dijital ofis teknolojileri ve yeni yönetim yaklaşımlarını takip eder.", "Toplantı ve etkinlik organizasyonlarında takım çalışmasıyla görev alır." ], 'bilgisayarArapgir': [ "Algoritma tasarımı, programlama ve yazılım geliştirme süreçlerinde yetkinlik sahibidir.", "Bilgisayar donanımı, işletim sistemleri ve ağları hakkında temel bilgiye sahiptir.", "Veri tabanı tasarımı, yönetimi ve sorgulama becerilerini uygular.", "Yazılım hatalarını ayıklama ve mevcut kodları analiz etme becerisi gösterir.", "Teknik dokümantasyon hazırlar ve takım arkadaşlarıyla bilgi paylaşımında bulunur.", "Bilişim hukuku ve meslek etiği konularında bilinçlidir.", "Yazılım geliştirme metodolojileri ve araçlarındaki yenilikleri öğrenir.", "Agile/Scrum gibi proje yönetimi ortamlarında işbirliği yapar." ], 'bankacilik': [ "Bankacılık ve sigortacılık sektörünün temel kavramlarını, ürünlerini ve yasal çerçevesini bilir.", "Finansal piyasaları ve kurumları tanır.", "Temel banka ve sigorta muhasebesi işlemlerini anlar.", "Müşterinin finansal durumunu analiz ederek uygun ürün ve hizmetleri önerir.", "Müşterilerle ve iş arkadaşlarıyla etkili iletişim kurma ve ikna becerisine sahiptir.", "Bankacılık sırrı ve meslek etiği kurallarına titizlikle uyar.", "Finansal teknolojilerdeki (FinTech) ve yasal düzenlemelerdeki gelişmeleri takip eder.", "Şube operasyonlarında takım hedeflerine ulaşmak için işbirliği içinde çalışır." ], 'isMakineleri': [ "İş makinelerinin (kazıcı, yükleyici vb.) mekanik, hidrolik ve elektronik sistemlerini tanır.", "İş makineleri motorları ve güç aktarma organlarının bakım ve onarım ilkelerini bilir.", "İş güvenliği kurallarına uygun olarak makine operasyonlarını anlar.", "İş makinelerindeki hidrolik ve mekanik arızaları analiz ederek onarım planı yapar.", "Servis formlarını ve teknik raporları doğru ve anlaşılır bir şekilde doldurur.", "Çevre koruma ve iş sağlığı güvenliği yönetmeliklerine uyar.", "Sektördeki yeni makine teknolojileri ve teşhis yöntemlerini takip eder.", "Bakım ve onarım operasyonlarında diğer teknisyenlerle uyum içinde çalışır." ] };
+        const TUM_VERILER = { /* ... Öncekiyle aynı ... */ 'akcadagMYO':{okulAdi:'Akçadağ Meslek Yüksekokulu',bolumler:{'havaUlastirma':{bolumAdi:'Sivil Hava Ulaştırma İşletmeciliği',dersler:{'SHU107-2024':{dersAdi:'SHU107-2024 - Genel İktisat'},'SHU105-2024':{dersAdi:'SHU105-2024 - Genel İşletme'},'SHU109-2024':{dersAdi:'SHU109-2024 - Genel Matematik'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'SHU101-2024':{dersAdi:'SHU101-2024 - Sivil Havacılığa Giriş'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'SHU103-2024':{dersAdi:'SHU103-2024 - Uçuş Teorisi ve Temel Uçak Bilgisi'},'SHU111-2024':{dersAdi:'SHU111-2024 - Yer Hizmetleri'},'SHU104-2024':{dersAdi:'SHU104-2024 - Havaalanı Faaliyetleri ve Donanımları'},'SHU106-2024':{dersAdi:'SHU106-2024 - Havacılık Emniyeti'},'SHU108-2024':{dersAdi:'SHU108-2024 - Havacılık Hukuku'},'SHU110-2024':{dersAdi:'SHU110-2024 - Havayolu Pazarlaması'},'STAJ100-2020':{dersAdi:'STAJ100-2020 - Staj'},'SHU102-2024':{dersAdi:'SHU102-2024 - Yolcu Hizmetleri'},'SHU265-2024':{dersAdi:'SHU265-2024 - Bilimsel Araştırma Yöntemleri'},'SHU261-2024':{dersAdi:'SHU261-2024 - Genel Turizm'},'SHU259-2024':{dersAdi:'SHU259-2024 - Halkla İlişkiler'},'SHU205-2024':{dersAdi:'SHU205-2024 - Harekat Performans'},'SHU207-2024':{dersAdi:'SHU207-2024 - Hava Taşımacılığı'},'SHU201-2024':{dersAdi:'SHU201-2024 - Havacılık Güvenliği'},'SHU203-2024':{dersAdi:'SHU203-2024 - Havacılık İngilizcesi I'},'SHU253-2024':{dersAdi:'SHU253-2024 - Havacılıkta Sürdürülebilirlik'},'SHU267-2024':{dersAdi:'SHU267-2024 - İnsan Kaynakları Yönetimi'},'SHU257-2024':{dersAdi:'SHU257-2024 - Örgütsel Davranış'},'SHU251-2024':{dersAdi:'SHU251-2024 - Temel Bilgi Teknolojileri'},'SHU255-2024':{dersAdi:'SHU255-2024 - Topluma Hizmet Uygulamaları'},'SHU263-2024':{dersAdi:'SHU263-2024 - Yönetim ve Organizasyon'},'SHU262-2024':{dersAdi:'SHU262-2024 - Dünya Kültürleri ve Destinasyonları'},'SHU268-2024':{dersAdi:'SHU268-2024 - Finansal Yönetim'},'SHU256-2024':{dersAdi:'SHU256-2024 - Hava Aracı Bakım ve Yönetimi'},'SHU264-2024':{dersAdi:'SHU264-2024 - Hava Kargo'},'SHU266-2024':{dersAdi:'SHU266-2024 - Hava Trafik Kuralları ve Hizmetleri'},'SHU206-2024':{dersAdi:'SHU206-2024 - Havacılık İngilizcesi II'},'SHU254-2024':{dersAdi:'SHU254-2024 - Havacılıkta Örnek Olay Analizi'},'SHU258-2024':{dersAdi:'SHU258-2024 - Havayolu Filo planlaması'},'SHU204-2024':{dersAdi:'SHU204-2024 - Havayolu Yönetimi'},'SHU260-2024':{dersAdi:'SHU260-2024 - Meteoroloji'},'SHU208-2024':{dersAdi:'SHU208-2024 - Müşteri İlişkileri ve Şikayet Yönetimi'},'SHU252-2024':{dersAdi:'SHU252-2024 - Proje Yönetimi'},'SHU270-2024':{dersAdi:'SHU270-2024 - Sürdürülebilir Havalimanı Yönetimi'},'SHU202-2024':{dersAdi:'SHU202-2024 - Tehlikeli Maddeler'}}},'bilgisayarAkcadag':{bolumAdi:'Bilgisayar Programcılığı',dersler:{'BLP109-2024':{dersAdi:'BLP109-2024 - Web Tasarımının Temelleri'},'BLP273-2024':{dersAdi:'BLP273-2024 - Bilişim Hukuku'},'BLP261-2024':{dersAdi:'BLP261-2024 - Görsel Programlama'},'BLP251-2024':{dersAdi:'BLP251-2024 - İnternet Programcılığı II'},'BLP207-2024':{dersAdi:'BLP207-2024 - Temel Elektronik'},'BLP255-2024':{dersAdi:'BLP255-2024 - Veri Madenciliği'},'BLP282-2024':{dersAdi:'BLP282-2024 - Animasyon Tasarımı'},'BLP101-2024':{dersAdi:'BLP101-2024 - Genel Matematik'},'BLP105-2024':{dersAdi:'BLP105-2024 - Ofis Yazılımları'},'BLP103-2024':{dersAdi:'BLP103-2024 - Programlamanın Temelleri'},'BLP107-2024':{dersAdi:'BLP107-2024 - Robotik'},'BLP111-2024':{dersAdi:'BLP111-2024 - Teknik İngilizce'},'BLP113-2024':{dersAdi:'BLP113-2024 - Yazılım Kurulumu'},'BLP102-2024':{dersAdi:'BLP102-2024 - Bilgisayar Donanımı'},'BLP112-2024':{dersAdi:'BLP112-2024 - Grafik Tasarım'},'BLP108-2024':{dersAdi:'BLP108-2024 - İnternet Programcılığı I'},'BLP110-2024':{dersAdi:'BLP110-2024 - Meslek Etiği'},'BLP106-2024':{dersAdi:'BLP106-2024 - Siber Güvenlik'},'BLP104-2024':{dersAdi:'BLP104-2024 - Veri Tabanı ve Yönetimi'},'BLP203-2024':{dersAdi:'BLP203-2024 - Bilgisayar Ağları'},'BLP259-2024':{dersAdi:'BLP259-2024 - Bilgisayar Destekli Tasarım'},'BLP257-2024':{dersAdi:'BLP257-2024 - Mobil Programlama'},'BLP201-2024':{dersAdi:'BLP201-2024 - Nesne Tabanlı Programlama I'},'BLP253-2024':{dersAdi:'BLP253-2024 - Phyton Programlama'},'BLP205-2024':{dersAdi:'BLP205-2024 - Web Proje Yönetimi'},'BLP204-2024':{dersAdi:'BLP204-2024 - Açık Kaynak İşletim Sistemi'},'BLP208-2024':{dersAdi:'BLP208-2024 - C Programlama'},'BLP202-2024':{dersAdi:'BLP202-2024 - Nesne Tabanlı Programlama II'},'BLP206-2024':{dersAdi:'BLP206-2024 - Sistem Analizi ve Tasarımı'},'BLP210-2024':{dersAdi:'BLP210-2024 - Yapay Zeka'}}},'isletme':{bolumAdi:'İşletme Yönetimi',dersler:{'ISY101-2024':{dersAdi:'ISY101-2024 - Bilgisayar ve Ofis Programları'},'ISY103-2024':{dersAdi:'ISY103-2024 - Genel İşletme'},'ISY107-2024':{dersAdi:'ISY107-2024 - Genel Matematik'},'ISY109-2024':{dersAdi:'ISY109-2024 - Genel Muhasebe'},'ISY105-2024':{dersAdi:'ISY105-2024 - İktisada Giriş'},'ISY113-2024':{dersAdi:'ISY113-2024 - İletişim'},'ISY111-2024':{dersAdi:'ISY111-2024 - Meslek Etiği'},'ISY102-2024':{dersAdi:'ISY102-2024 - Dönem Sonu Muhasebe İşlemleri'},'ISY104-2024':{dersAdi:'ISY104-2024 - İşletme Becerileri Grup Çalışması'},'ISY156-2024':{dersAdi:'ISY156-2024 - Kongre ve Fuar Yönetimi'},'ISY106-2024':{dersAdi:'ISY106-2024 - Makro İktisat'},'ISY158-2024':{dersAdi:'ISY158-2024 - Maliyet Muhasebesi'},'ISY154-2024':{dersAdi:'ISY154-2024 - Örgütsel Davranış'},'ISY152-2024':{dersAdi:'ISY152-2024 - Yönetim Bilişim Sistemleri'},'ISY261-2024':{dersAdi:'ISY261-2024 - Genel Hukuk Bilgisi'},'ISY253-2024':{dersAdi:'ISY253-2024 - Halkla İlişkiler'},'ISY257-2024':{dersAdi:'ISY257-2024 - İş ve Sosyal Güvenlik Hukuku'},'ISY255-2024':{dersAdi:'ISY255-2024 - Kariyer Yönetimi'},'ISY259-2024':{dersAdi:'ISY259-2024 - Müşteri İlişkileri Yönetimi'},'ISY251-2024':{dersAdi:'ISY251-2024 - Pazarlama İlkeleri'},'ISY205-2024':{dersAdi:'ISY205-2024 - Stratejik Yönetim'},'ISY201-2024':{dersAdi:'ISY201-2024 - Teknoloji Yönetimi'},'ISY207-2024':{dersAdi:'ISY207-2024 - Uluslararası İşletmecilik'},'ISY203-2024':{dersAdi:'ISY203-2024 - Yönetim ve Organizasyon'},'ISY210-2024':{dersAdi:'ISY210-2024 - Avrupa Birliği ve İşletmecilik'},'ISY212-2025':{dersAdi:'ISY212-2025 - Bilgisayarlı Muhasebe'},'ISY262-2024':{dersAdi:'ISY262-2024 - Elektronik Ticaret'},'ISY258-2024':{dersAdi:'ISY258-2024 - Girişimcilik ve Küçük İşletme Yönetimi'},'ISY254-2024':{dersAdi:'ISY254-2024 - İnovasyon ve Proje Yönetimi'},'ISY202-2024':{dersAdi:'ISY202-2024 - İnsan Kaynakları Yönetimi'},'ISY208-2024':{dersAdi:'ISY208-2024 - Marka Yönetimi'},'ISY256-2024':{dersAdi:'ISY256-2024 - Risk Yönetimi'},'ISY252-2024':{dersAdi:'ISY252-2024 - Satış Yönetimi'},'ISY206-2024':{dersAdi:'ISY206-2024 - Teknoloji Endüstri ve Toplum'},'ISY260-2024':{dersAdi:'ISY260-2024 - Toplam Kalite Yönetimi'},'ISY204-2024':{dersAdi:'ISY204-2024 - Üretim Yönetimi'}}},'veterinerlik':{bolumAdi:'Laborant ve Veteriner Sağlık',dersler:{'LVS101-2024':{dersAdi:'LVS101-2024 - Genel Zootekni'},'LVS103-2024':{dersAdi:'LVS103-2024 - Hijyen ve Sanitasyon'},'LVS109-2024':{dersAdi:'LVS109-2024 - Temel Veteriner Anatomi'},'LVS107-2024':{dersAdi:'LVS107-2024 - Temel Veteriner Biyokimyası'},'LVS105-2024':{dersAdi:'LVS105-2024 - Temel Veteriner Fizyolojisi'},'LVS111-2024':{dersAdi:'LVS111-2024 - Veteriner Laboratuvar Teknikleri'},'LVS156-2024':{dersAdi:'LVS156-2024 - Biyogüvenlik ve Sürdürülebilirlik'},'LVS162-2024':{dersAdi:'LVS162-2024 - Biyoistatistik'},'LVS104-2024':{dersAdi:'LVS104-2024 - Doğum ve Suni Tohumlama'},'LVS106-2024':{dersAdi:'LVS106-2024 - Genetik ve Islah'},'LVS160-2024':{dersAdi:'LVS160-2024 - Marazi Madde ve Numune Alma Teknikleri'},'LVS154-2024':{dersAdi:'LVS154-2024 - Mesleki İngilizce I'},'LVS158-2024':{dersAdi:'LVS158-2024 - Temel Klinik Bilgisi'},'LVS164-2024':{dersAdi:'LVS164-2024 - Temel Veteriner Histoloji ve Embriyoloji'},'LVS110-2024':{dersAdi:'LVS110-2024 - Temel Veteriner Mikrobiyoloji'},'LVS108-2024':{dersAdi:'LVS108-2024 - Temel Veteriner Parazitolojisi'},'LVS152-2024':{dersAdi:'LVS152-2024 - Veteriner Hizmetleri Mevzuatı'},'LVS102-2024':{dersAdi:'LVS102-2024 - Zootekni I (At ve Büyükbaş)'},'LVS206-2024':{dersAdi:'LVS206-2024 - Gıda Güvenliğinin Temel Prensipleri'},'LVS257-2024':{dersAdi:'LVS257-2024 - Halk Sağlığı'},'LVS252-2024':{dersAdi:'LVS252-2024 - Hayvan Davranışları ve Refahı'},'LVS255-2024':{dersAdi:'LVS255-2024 - Hayvancılık İşletme Ekonomisi'},'LVS254-2024':{dersAdi:'LVS254-2024 - Mesleki İngilizce II'},'LVS207-2024':{dersAdi:'LVS207-2024 - Salgın Hastalıklar ve Zoonozlar'},'LVS251-2024':{dersAdi:'LVS251-2024 - Sürdürülebilir Biyoteknoloji'},'LVS256-2024':{dersAdi:'LVS256-2024 - Temel Mikrobiyoloji ve Epidemiyoloji'},'LVS253-2024':{dersAdi:'LVS253-2024 - Temel Sürü Sağlığı ve Yönetimi'},'LVS205-2024':{dersAdi:'LVS205-2024 - Temel Veteriner Farmakoloji ve Toksikoloji'},'LVS203-2024':{dersAdi:'LVS203-2024 - Temel Veteriner Patoloji'},'LVS202-2024':{dersAdi:'LVS202-2024 - Temel Yem Bilgisi ve Hayvan Besleme'},'LVS204-2024':{dersAdi:'LVS204-2024 - Viroloji'},'LVS201-2024':{dersAdi:'LVS201-2024 - Zootekni II (Küçükbaş ve Kanatlı)'}}}},'arapgirMYO':{okulAdi:'Arapgir Meslek Yüksekokulu',bolumler:{'otomotiv':{bolumAdi:'Otomotiv Teknolojisi',dersler:{'OTEK290-2024':{dersAdi:'OTEK290-2024 - Sürdürülebilir Enerji Yönetimi'},'OTEK288-2024':{dersAdi:'OTEK288-2024 - Taşıtlarda Mekanik Titreşimler'},'OTEK284-2024':{dersAdi:'OTEK284-2024 - Otomotiv Elektromekanik Teknolojileri'},'OTEK283-2024':{dersAdi:'OTEK283-2024 - Mekanizma Tekniği'},'OTEK281-2024':{dersAdi:'OTEK281-2024 - Otomotivde Robot Teknolojileri'},'OTEK279-2024':{dersAdi:'OTEK279-2024 - Ağır Vasıta Teknolojileri'},'OTEK277-2024':{dersAdi:'OTEK277-2024 - Otomotiv Üretim ve Montaj Teknolojileri'},'OTEK275-2024':{dersAdi:'OTEK275-2024 - Trafik ve Güvenli Sürüş Teknikleri'},'OTEK273-2024':{dersAdi:'OTEK273-2024 - Taşıt konstrüksiyonu ve Şasi Geliştirme'},'OTEK272-2024':{dersAdi:'OTEK272-2024 - Servis Yönetimi ve Müşteri İlişkileri'},'OTEK271-2024':{dersAdi:'OTEK271-2024 - Taşıt Tasarımı'},'OTEK269-2024':{dersAdi:'OTEK269-2024 - Taşıt Dinamiği'},'OTEK264-2024':{dersAdi:'OTEK264-2024 - Kalite Yönetim Sistemleri'},'OTEK263-2024':{dersAdi:'OTEK263-2024 - Bilgisayar Kontrollü Takım Tezgahları'},'OTEK262-2024':{dersAdi:'OTEK262-2024 - Mesleki Teknik Yöntemler'},'OTEK261-2024':{dersAdi:'OTEK261-2024 - Mesleki Yabancı Dil -I'},'OTEK256-2024':{dersAdi:'OTEK256-2024 - Hibrit ve Elektrikli Araçlar'},'OTEK254-2024':{dersAdi:'OTEK254-2024 - Alternatif Motor ve Yakıt Sistemleri'},'OTEK160-2024':{dersAdi:'OTEK160-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'STAJ200-2024':{dersAdi:'STAJ200-2024 - Staj'},'OTEK286-2024':{dersAdi:'OTEK286-2024 - Taşıt Aerodinamiği'},'OTEK282-2024':{dersAdi:'OTEK282-2024 - Taşıtlarda Haberleşme Sistemleri'},'OTEK280-2024':{dersAdi:'OTEK280-2024 - Araç Muayene Yasal Çerçevesi ve Uygulamaları'},'OTEK278-2024':{dersAdi:'OTEK278-2024 - Kaza Yeri İnceleme ve Bilirkişilik'},'OTEK276-2024':{dersAdi:'OTEK276-2024 - Hasar Tespiti, Analizi ve Sigorta'},'OTEK274-2024':{dersAdi:'OTEK274-2024 - Lojistik ve Stok Yönetimi'},'OTEK270-2024':{dersAdi:'OTEK270-2024 - Yakıt Pilleri ve Bataryalar'},'OTEK268-2024':{dersAdi:'OTEK268-2024 - Mesleki Yabancı Dil-II'},'OTEK267-2024':{dersAdi:'OTEK267-2024 - İş Makinaları Teknolojisi'},'OTEK266-2024':{dersAdi:'OTEK266-2024 - İşletme Yönetimi'},'OTEK265-2024':{dersAdi:'OTEK265-2024 - Bilgisayar Destekli Tasarım'},'OTEK260-2024':{dersAdi:'OTEK260-2024 - Isıtma ve Soğutma Sistemleri'},'OTEK259-2024':{dersAdi:'OTEK259-2024 - Motor Yenileştirme'},'OTEK258-2024':{dersAdi:'OTEK258-2024 - Sistem Analizi ve Tasarımı'},'OTEK257-2024':{dersAdi:'OTEK257-2024 - Sürdürülebilir Çevre Yönetimi'},'OTEK255-2024':{dersAdi:'OTEK255-2024 - Kalite Güvencesi ve Standartları'},'OTEK253-2024':{dersAdi:'OTEK253-2024 - Araştırma Yöntem ve Teknikleri'},'OTEK252-2024':{dersAdi:'OTEK252-2024 - Motor Test ve Ayarları'},'OTEK251-2024':{dersAdi:'OTEK251-2024 - Otomotiv Elektroniği'},'OTEK250-2024':{dersAdi:'OTEK250-2024 - Bilgisayar Destekli Çizim'},'OTEK211-2020':{dersAdi:'OTEK211-2020 - Taşıtlar Mekaniği'},'OTEK209-2020':{dersAdi:'OTEK209-2020 - Hareket Kontrol Sistemleri'},'OTEK207-2024':{dersAdi:'OTEK207-2024 - Güç Aktarma Organları'},'OTEK205-2024':{dersAdi:'OTEK205-2024 - Makine Elemanları'},'OTEK203-2020':{dersAdi:'OTEK203-2020 - Buji Ateşlemeli Motorların Yakıt ve Ateşleme Sistemleri'},'OTEK202-2024':{dersAdi:'OTEK202-2024 - Otomotiv Meslek Uygulamaları II'},'OTEK201-2020':{dersAdi:'OTEK201-2020 - Otomotiv Meslek Uygulamaları I'},'OTEK158-2024':{dersAdi:'OTEK158-2024 - İletişim'},'OTEK156-2024':{dersAdi:'OTEK156-2024 - Konfor Sistemleri'},'OTEK154-2024':{dersAdi:'OTEK154-2024 - Ölçme Tekniği'},'OTEK152-2024':{dersAdi:'OTEK152-2024 - Emisyon Kontrol Sistemleri'},'OTEK150-2024':{dersAdi:'OTEK150-2024 - Otomotiv Elektriği'},'OTEK117-2024':{dersAdi:'OTEK117-2024 - İş Güvenliği ve İşçi Sağlığı'},'OTEK115-2024':{dersAdi:'OTEK115-2024 - Malzeme Teknolojisi'},'OTEK114-2024':{dersAdi:'OTEK114-2024 - Hidrolik Pnömatik'},'OTEK113-2020':{dersAdi:'OTEK113-2020 - Servis Donanımları, Atölye Alet ve Takımları'},'OTEK112-2020':{dersAdi:'OTEK112-2020 - Mesleki Matematik I'},'OTEK111-2020':{dersAdi:'OTEK111-2020 - Matematik I'},'OTEK110-2020':{dersAdi:'OTEK110-2020 - Mesleki Resim'},'OTEK108-2024':{dersAdi:'OTEK108-2024 - Bilgi ve İletişim Teknolojileri'},'OTEK107-2024':{dersAdi:'OTEK107-2024 - Fizik'},'OTEK104-2020':{dersAdi:'OTEK104-2020 - Dizel Motorlar ve Enjeksiyon Sistemleri'},'OTEK103-2024':{dersAdi:'OTEK103-2024 - Termodinamik'},'OTEK101-2024':{dersAdi:'OTEK101-2024 - Motor Teknolojisi'},'İNG102-2020':{dersAdi:'İNG102-2020 - İngilizce II'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkılap Tarihi II'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkılap Tarihi I'}}},'muhasebe':{bolumAdi:'Muhasebe ve Vergi Uygulamaları',dersler:{'MVU152-2024':{dersAdi:'MVU152-2024 - Protokol ve sosyal Davranış Kuralları'},'MVU158-2024':{dersAdi:'MVU158-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'MVU274-2024':{dersAdi:'MVU274-2024 - Müşteri ilişkileri Yönetimi'},'MVU276-2024':{dersAdi:'MVU276-2024 - Pazarlama'},'MVU278-2024':{dersAdi:'MVU278-2024 - Örgütsel Davranış'},'MVU280-2024':{dersAdi:'MVU280-2024 - Sermaye Piyasası İşlemleri'},'MVU281-2024':{dersAdi:'MVU281-2024 - Türkiye Ekonomisi'},'MVU282-2024':{dersAdi:'MVU282-2024 - Yasalar ve Sürdürülebilirlik'},'MVU283-2024':{dersAdi:'MVU283-2024 - Kariyer Planlama'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkilap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkilap Tarihi II'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'İNG102-2020':{dersAdi:'İNG102-2020 - İngilizce II'},'MVU101-2020':{dersAdi:'MVU101-2020 - Mesleki Matematik'},'MVU102-2020':{dersAdi:'MVU102-2020 - Ticaret Hukuku'},'MVU103-2020':{dersAdi:'MVU103-2020 - Genel Muhasebe I'},'MVU104-2020':{dersAdi:'MVU104-2020 - Genel Muhasebe II'},'MVU105-2024':{dersAdi:'MVU105-2024 - İletişim'},'MVU106-2024':{dersAdi:'MVU106-2024 - Ticari Matematik'},'MVU107-2020':{dersAdi:'MVU107-2020 - Genel İşletme'},'MVU108-2024':{dersAdi:'MVU108-2024 - İstatistik'},'MVU109-2020':{dersAdi:'MVU109-2020 - Mikro Ekonomi'},'MVU111-2020':{dersAdi:'MVU111-2020 - Temel Hukuk'},'MVU112-2020':{dersAdi:'MVU112-2020 - Makro Ekonomi'},'MVU113-2024':{dersAdi:'MVU113-2024 - Bilgi Ve İletişim Teknolojisi'},'MVU114-2024':{dersAdi:'MVU114-2024 - İş ve Sosyal Güvenlik Hukuku'},'MVU116-2024':{dersAdi:'MVU116-2024 - Meslek Etiği'},'MVU150-2024':{dersAdi:'MVU150-2024 - Dönem sonu Muhasebe İşlemleri'},'MVU154-2024':{dersAdi:'MVU154-2024 - Ofis Programları'},'MVU156-2024':{dersAdi:'MVU156-2024 - Girişimcilik'},'MVU201-2020':{dersAdi:'MVU201-2020 - Şirketler Muhasebesi'},'MVU203-2024':{dersAdi:'MVU203-2024 - Dış Ticaret İşlemleri'},'MVU205-2020':{dersAdi:'MVU205-2020 - Mali Tablolar ve Analizi'},'MVU206-2024':{dersAdi:'MVU206-2024 - Paket Programlar II'},'MVU207-2020':{dersAdi:'MVU207-2020 - Maliyet Muhasebesi'},'MVU209-2024':{dersAdi:'MVU209-2024 - Paket Programları I'},'MVU213-2024':{dersAdi:'MVU213-2024 - Araştırma Yöntem ve Teknikleri'},'MVU250-2024':{dersAdi:'MVU250-2024 - Finansal Yönetim'},'MVU251-2024':{dersAdi:'MVU251-2024 - Vergi Hukuku'},'MVU252-2024':{dersAdi:'MVU252-2024 - Muhasebe Denetimi'},'MVU254-2024':{dersAdi:'MVU254-2024 - Türk Vergi Sistemi'},'MVU256-2024':{dersAdi:'MVU256-2024 - Para ve Banka'},'MVU258-2024':{dersAdi:'MVU258-2024 - Dış Ticaret İşlemleri Muhasebesi'},'MVU260-2024':{dersAdi:'MVU260-2024 - Kalite Yönetim Sistemleri'},'MVU262-2024':{dersAdi:'MVU262-2024 - İşletme Yönetimi II'},'MVU263-2024':{dersAdi:'MVU263-2024 - Banka Muhasebesi'},'MVU264-2024':{dersAdi:'MVU264-2024 - Mesleki Yabancı Dil II'},'MVU265-2024':{dersAdi:'MVU265-2024 - İşletme Yönetimi I'},'MVU266-2024':{dersAdi:'MVU266-2024 - E-Ticaret'},'MVU267-2024':{dersAdi:'MVU267-2024 - Çevre Koruma'},'MVU268-2024':{dersAdi:'MVU268-2024 - Finansal Yatırım Araçları'},'MVU269-2024':{dersAdi:'MVU269-2024 - Kamu Maliyesi'},'MVU270-2024':{dersAdi:'MVU270-2024 - Envanter Bilanço'},'MVU271-2024':{dersAdi:'MVU271-2024 - Mesleki Yabancı Dil I'},'MVU272-2024':{dersAdi:'MVU272-2024 - İnşaat Muhasebesi'},'MVU273-2024':{dersAdi:'MVU273-2024 - İnsan Kaynakları ve Yönetimi'},'MVU275-2024':{dersAdi:'MVU275-2024 - Sigortacılık'},'MVU277-2024':{dersAdi:'MVU277-2024 - Finansal Araçlar ve Muhasebe Uygulamaları'},'MVU279-2024':{dersAdi:'MVU279-2024 - Yönetim Muhasebesi'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - Staj'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'}}},'restorasyon':{bolumAdi:'Mimari Restorasyon',dersler:{'MİR280-2024':{dersAdi:'MİR280-2024 - Yeşil Bina Tasarımı ve Sürdürülebilirlik'},'MİR277-2024':{dersAdi:'MİR277-2024 - Güzel Sanatlar ve Görsel Kültür'},'MİR274-2024':{dersAdi:'MİR274-2024 - Yerinde Mimarlık'},'MİR263-2024':{dersAdi:'MİR263-2024 - Kültürel Miras ve Alan Yönetimi'},'MİR260-2024':{dersAdi:'MİR260-2024 - Geleneksel Yapılarda Bozulma ve Onarım'},'MİR256-2024':{dersAdi:'MİR256-2024 - Geleneksel Yapılarda Metal ve Ahşap Onarımı'},'MİR172-2024':{dersAdi:'MİR172-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'MİR170-2024':{dersAdi:'MİR170-2024 - Restorasyonda İç Mekân Tasarımı II'},'MİR168-2024':{dersAdi:'MİR168-2024 - Restorasyonda İç Mekân Tasarımı I'},'TDB102-2021':{dersAdi:'TDB102-2021 - Türk Dili II'},'TDB101-2021':{dersAdi:'TDB101-2021 - Türk Dili I'},'Staj200-2024':{dersAdi:'Staj200-2024 - Staj'},'MİR279-2024':{dersAdi:'MİR279-2024 - Sunum Teknikleri'},'MİR278-2024':{dersAdi:'MİR278-2024 - Yapılarda Aydınlatma ve Sürdürülebilirlik'},'MİR276-2024':{dersAdi:'MİR276-2024 - Geleneksel Konut Mimarisi ve Sürdürülebilirlik'},'MİR275-2024':{dersAdi:'MİR275-2024 - Geleneksel Türk El Sanatları'},'MİR273-2024':{dersAdi:'MİR273-2024 - Korumada Yasal Süreçler'},'MİR272-2024':{dersAdi:'MİR272-2024 - Koruma ve Yeniden Kullanım'},'MİR271-2024':{dersAdi:'MİR271-2024 - Eski Çini ve Kil Eser Onarımı'},'MİR270-2024':{dersAdi:'MİR270-2024 - Yapılarda Aydınlatma'},'MİR269-2024':{dersAdi:'MİR269-2024 - Bilgi ve İletişim Teknolojisi'},'MİR268-2024':{dersAdi:'MİR268-2024 - Geleneksel Konut Mimarisi'},'MİR266-2024':{dersAdi:'MİR266-2024 - Bezeme Teknikleri'},'MİR264-2024':{dersAdi:'MİR264-2024 - İnce Yapı II'},'MİR262-2024':{dersAdi:'MİR262-2024 - Metraj Keşif'},'MİR258-2024':{dersAdi:'MİR258-2024 - Şantiye ve Ofis Organizasyonu'},'MİR255-2024':{dersAdi:'MİR255-2024 - Geleneksel El Sanatları Uygulamaları'},'MİR254-2024':{dersAdi:'MİR254-2024 - Araştırma Yöntem ve Uygulamaları'},'MİR253-2024':{dersAdi:'MİR253-2024 - Taş ve Seramik Eserlerin koruması'},'MİR252-2024':{dersAdi:'MİR252-2024 - Cam ve Mozaik Onarımı'},'MİR251-2024':{dersAdi:'MİR251-2024 - Kalemişi ve Fresk Onarımı'},'MİR250-2024':{dersAdi:'MİR250-2024 - Çini Tasarım'},'MİR211-2024':{dersAdi:'MİR211-2024 - Kariyer Planlama ve Girişimcilik'},'MİR209-2024':{dersAdi:'MİR209-2024 - İnce Yapı I'},'MİR207-2024':{dersAdi:'MİR207-2024 - Maket'},'MİR206-2024':{dersAdi:'MİR206-2024 - Koruma Projesi II'},'MİR205-2024':{dersAdi:'MİR205-2024 - İş Sağlığı ve Güvenliği'},'MİR203-2024':{dersAdi:'MİR203-2024 - Koruma Projesi I'},'MİR166-2024':{dersAdi:'MİR166-2024 - Vitray Sanatı'},'MİR164-2024':{dersAdi:'MİR164-2024 - Fotoğrafta Belgeleme'},'MİR162-2024':{dersAdi:'MİR162-2024 - Tarihi Çevre Koruma Bilinci'},'MİR160-2024':{dersAdi:'MİR160-2024 - Geleneksel Yapı Sistemleri ve Malzemeleri'},'MİR158-2024':{dersAdi:'MİR158-2024 - Konservasyon'},'MİR156-2024':{dersAdi:'MİR156-2024 - Ergonomi'},'MİR154-2024':{dersAdi:'MİR154-2024 - Mimarlık  ve Sanat Tarihi -II'},'MİR152-2024':{dersAdi:'MİR152-2024 - Kagir Yapı Ve Koruma'},'MİR150-2024':{dersAdi:'MİR150-2024 - Taş ve Seramik Eserleri Koruma ve Onarım'},'MİR116-2024':{dersAdi:'MİR116-2024 - Koruma Kavramları'},'MİR114-2021':{dersAdi:'MİR114-2021 - Kalıp Alma Yöntemleri'},'MİR113-2021':{dersAdi:'MİR113-2021 - Geleneksel El Sanatları Uygulamaları'},'MİR111-2024':{dersAdi:'MİR111-2024 - Mimarlık ve Sanat Tarihi'},'MİR109-2024':{dersAdi:'MİR109-2024 - Temel Tasarım'},'MİR108-2024':{dersAdi:'MİR108-2024 - Mimari Tasarım'},'MİR107-2021':{dersAdi:'MİR107-2021 - Malzeme ve Yapı Bilgisi'},'MİR106-2021':{dersAdi:'MİR106-2021 - Rölöve'},'MİR105-2021':{dersAdi:'MİR105-2021 - Mesleki Teknik Resim'},'MİR103-2021':{dersAdi:'MİR103-2021 - Matematik I'},'MİR102-2024':{dersAdi:'MİR102-2024 - Bilgisayar Destekli Çizim II'},'MİR101-2024':{dersAdi:'MİR101-2024 - Bilgisayar Destekli Çizim I'},'İNG102-2021':{dersAdi:'İNG102-2021 - İngilizce II'},'İNG101-2021':{dersAdi:'İNG101-2021 - İngilizce I'},'AİİT102-2021':{dersAdi:'AİİT102-2021 - Atatürk İlkeleri ve İnkılap Tarihi II'},'AİİT101-2021':{dersAdi:'AİİT101-2021 - Atatürk İlkeleri ve İnkılap Tarihi I'}}},'mekatronik':{bolumAdi:'Mekatronik',dersler:{'MEK156-2024':{dersAdi:'MEK156-2024 - Hibrit ve Elektrikli Araçlar'},'MEK158-2024':{dersAdi:'MEK158-2024 - Yakıt Pilleri ve Bataryalar'},'MEK160-2024':{dersAdi:'MEK160-2024 - Özel Tasarımlı Motorlar'},'MEK162-2024':{dersAdi:'MEK162-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'MEK253-2024':{dersAdi:'MEK253-2024 - Haberleşme Tekniği ve Veri İletişimi'},'MEK257-2024':{dersAdi:'MEK257-2024 - Görsel Programlama'},'MEK259-2024':{dersAdi:'MEK259-2024 - Scada Sistemleri'},'MEK260-2024':{dersAdi:'MEK260-2024 - Bilgisayarlı Kontrol Sistemleri'},'MEK261-2024':{dersAdi:'MEK261-2024 - Mikro Makineler'},'MEK263-2024':{dersAdi:'MEK263-2024 - Güç Elektroniği'},'MEK264-2024':{dersAdi:'MEK264-2024 - Bilgisayar Destekli Takım Tezgahları'},'MEK266-2024':{dersAdi:'MEK266-2024 - Proses Kontrol Sistemleri'},'MEK267-2024':{dersAdi:'MEK267-2024 - Sayısal Görüntü İşleme'},'MEK269-2024':{dersAdi:'MEK269-2024 - Optimizasyon Teknikleri'},'MEK270-2024':{dersAdi:'MEK270-2024 - Otonom Sistemler'},'MEK271-2024':{dersAdi:'MEK271-2024 - Sürdürülebilir Enerji Yönetimi'},'MEK272-2024':{dersAdi:'MEK272-2024 - Gömülü Sistemler'},'MEK274-2024':{dersAdi:'MEK274-2024 - İşletme Yönetimi'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkılap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkilap Tarihi II'},'ING101-2020':{dersAdi:'ING101-2020 - İngilizce I'},'ING102-2020':{dersAdi:'ING102-2020 - İngilizce II'},'MEK101-2020':{dersAdi:'MEK101-2020 - Elektrik Elektronikte Ölçme'},'MEK102-2020':{dersAdi:'MEK102-2020 - A.C. Devre Analizi'},'MEK103-2020':{dersAdi:'MEK103-2020 - D.C. Devre Analizi'},'MEK105-2020':{dersAdi:'MEK105-2020 - Analog Elektronik'},'MEK107-2020':{dersAdi:'MEK107-2020 - Malzeme Teknolojisi'},'MEK109-2020':{dersAdi:'MEK109-2020 - Mekatroniğin Temelleri'},'MEK110-2024':{dersAdi:'MEK110-2024 - Teknik ve Meslek Resmi'},'MEK111-2020':{dersAdi:'MEK111-2020 - Bilgi ve İletişim Teknolojisi'},'MEK112-2020':{dersAdi:'MEK112-2020 - Makine Elemanları'},'MEK113-2020':{dersAdi:'MEK113-2020 - Matematik I'},'MEK114-2020':{dersAdi:'MEK114-2020 - Mesleki Matematik'},'MEK150-2024':{dersAdi:'MEK150-2024 - Bilgisayarda Programlama'},'MEK152-2024':{dersAdi:'MEK152-2024 - Sayısal Elektronik'},'MEK154-2024':{dersAdi:'MEK154-2024 - Bilgisayar Destekli Elektronik Devre Tasarımı'},'MEK201-2020':{dersAdi:'MEK201-2020 - Mikrodenetleyiciler I'},'MEK203-2020':{dersAdi:'MEK203-2020 - Sensörler ve Transdüserler'},'MEK205-2020':{dersAdi:'MEK205-2020 - Elektromekanik Kumanda Sistemleri'},'MEK207-2020':{dersAdi:'MEK207-2020 - Bilgisayar Destekli Tasarım'},'MEK208-2020':{dersAdi:'MEK208-2020 - Mekatronik Uygulamaları II'},'MEK209-2020':{dersAdi:'MEK209-2020 - Elektrik Motorları ve Sürücüleri'},'MEK211-2020':{dersAdi:'MEK211-2020 - Isı Transferi'},'MEK213-2020':{dersAdi:'MEK213-2020 - Mekatronik Uygulamaları I'},'MEK250-2024':{dersAdi:'MEK250-2024 - Programlanabilir Denetleyiciler'},'MEK251-2024':{dersAdi:'MEK251-2024 - Mekanizma Tekniği'},'MEK252-2024':{dersAdi:'MEK252-2024 - Hidrolik Pnömatik'},'MEK254-2024':{dersAdi:'MEK254-2024 - Esnek Üretim Sistemleri'},'MEK255-2024':{dersAdi:'MEK255-2024 - İmalat İşlemleri I'},'MEK256-2024':{dersAdi:'MEK256-2024 - Endüstriyel Robotlar'},'MEK258-2024':{dersAdi:'MEK258-2024 - İmalat İşlemleri II'},'MEK262-2024':{dersAdi:'MEK262-2024 - Mikrodenetleyiciler II'},'MEK265-2024':{dersAdi:'MEK265-2024 - Nanoteknoloji'},'MEK268-2024':{dersAdi:'MEK268-2024 - Yapay Zeka'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - STAJ'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'}}},'elektrik':{bolumAdi:'Elektrik',dersler:{'ELK156-2024':{dersAdi:'ELK156-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'ELK272-2024':{dersAdi:'ELK272-2024 - Elektrik Bakım, Arıza Analizi'},'ELK274-2024':{dersAdi:'ELK274-2024 - Esnek Üretim Sistemleri'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkılap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkılap Tarihi II'},'ELK101-2020':{dersAdi:'ELK101-2020 - Ölçme Tekniği'},'ELK102-2020':{dersAdi:'ELK102-2020 - Tesisata Giriş'},'ELK103-2020':{dersAdi:'ELK103-2020 - Doğru Akım Devreleri'},'ELK104-2020':{dersAdi:'ELK104-2020 - Alternatif Akım Devreleri'},'ELK105-2020':{dersAdi:'ELK105-2020 - Temel Elektronik'},'ELK107-2020':{dersAdi:'ELK107-2020 - Trafo ve Doğru Akım Makinaları'},'ELK108-2024':{dersAdi:'ELK108-2024 - Elektrik Enerji Santralleri'},'ELK109-2020':{dersAdi:'ELK109-2020 - Bilgi ve İletişim Teknolojisi'},'ELK111-2020':{dersAdi:'ELK111-2020 - Matematik I'},'ELK114-2020':{dersAdi:'ELK114-2020 - Matematik II'},'ELK116-2024':{dersAdi:'ELK116-2024 - Asenkron ve Senkron Makineler'},'ELK150-2024':{dersAdi:'ELK150-2024 - Özel Tasarımlı Motorlar'},'ELK152-2024':{dersAdi:'ELK152-2024 - Teknik Resim'},'ELK154-2024':{dersAdi:'ELK154-2024 - Güç Elektroniği'},'ELK202-2020':{dersAdi:'ELK202-2020 - Programlanabilir Denetleyiciler'},'ELK203-2020':{dersAdi:'ELK203-2020 - Elektromekanik Kumanda Sistemleri'},'ELK207-2024':{dersAdi:'ELK207-2024 - Sistem Analizi ve Tasarımı'},'ELK213-2020':{dersAdi:'ELK213-2020 - Sensörler ve Trandüserler'},'ELK223-2024':{dersAdi:'ELK223-2024 - Enerji Verimliliği'},'ELK225-2024':{dersAdi:'ELK225-2024 - Özel Tesisat'},'ELK250-2024':{dersAdi:'ELK250-2024 - Sözleşme Keşif ve Planlama'},'ELK251-2024':{dersAdi:'ELK251-2024 - Pano Tasarım ve Montajı'},'ELK252-2024':{dersAdi:'ELK252-2024 - Hidrolik Pnömatik'},'ELK253-2024':{dersAdi:'ELK253-2024 - Bilgisayar Destekli Proje I'},'ELK254-2024':{dersAdi:'ELK254-2024 - Sarım Tekniği'},'ELK255-2024':{dersAdi:'ELK255-2024 - Sayısal Elektronik'},'ELK256-2024':{dersAdi:'ELK256-2024 - Elektrik Enerjisi İletim ve Dağıtımı'},'ELK257-2024':{dersAdi:'ELK257-2024 - İş Güvenliği ve İşçi Sağlığı'},'ELK258-2024':{dersAdi:'ELK258-2024 - Bilgisayar Destekli Proje II'},'ELK259-2024':{dersAdi:'ELK259-2024 - Algoritma ve Programlama'},'ELK260-2024':{dersAdi:'ELK260-2024 - Elektronik Devre Tasarımı'},'ELK261-2024':{dersAdi:'ELK261-2024 - İşletme Yönetimi'},'ELK263-2024':{dersAdi:'ELK263-2024 - Haberleşme Tekniği ve Veri İletişimi'},'ELK264-2024':{dersAdi:'ELK264-2024 - Mesleki Yabancı Dil'},'ELK265-2024':{dersAdi:'ELK265-2024 - Bilgisayar Destekli Tasarım'},'ELK266-2024':{dersAdi:'ELK266-2024 - Ev Cihazları'},'ELK267-2024':{dersAdi:'ELK267-2024 - Sürdürülebilir Enerji Yönetimi'},'ELK270-2024':{dersAdi:'ELK270-2024 - Yüksek Gerilim Tekniği'},'ING101-2020':{dersAdi:'ING101-2020 - İngilizce I'},'ING102-2020':{dersAdi:'ING102-2020 - İngilizce II'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - Staj'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'},'ELK262-2024':{dersAdi:'ELK262-2024 - Scada Sistemleri'},'ELK268-2024':{dersAdi:'ELK268-2024 - Mesleki Teknik Yöntemler'}}},'buro':{bolumAdi:'Büro Yönetimi ve Yönetici Asistanlığı',dersler:{'BYA152-2024':{dersAdi:'BYA152-2024 - Kongre ve Fuar Yönetimi'},'BYA156-2024':{dersAdi:'BYA156-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'BYA254-2024':{dersAdi:'BYA254-2024 - Davranış Bilimleri'},'BYA267-2024':{dersAdi:'BYA267-2024 - Toplantı Yönetimi'},'BYA268-2024':{dersAdi:'BYA268-2024 - Yasalar ve Sürdürülebilirlik'},'BYA269-2024':{dersAdi:'BYA269-2024 - İş Sağlığı ve Güvenliği'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - Staj'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkilap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkilap Tarihi II'},'BYA101-2020':{dersAdi:'BYA101-2020 - Mesleki Matematik'},'BYA102-2024':{dersAdi:'BYA102-2024 - Bilgisayar Büro Programları'},'BYA103-2020':{dersAdi:'BYA103-2020 - Klavye Teknikleri'},'BYA104-2020':{dersAdi:'BYA104-2020 - Mesleki Yazışmalar'},'BYA105-2020':{dersAdi:'BYA105-2020 - Protokol ve Sosyal Davranış Kuralları'},'BYA106-2020':{dersAdi:'BYA106-2020 - Ticari Matematik'},'BYA107-2020':{dersAdi:'BYA107-2020 - İşletme I'},'BYA108-2020':{dersAdi:'BYA108-2020 - İşletme II'},'BYA109-2020':{dersAdi:'BYA109-2020 - Ekonomi I'},'BYA110-2020':{dersAdi:'BYA110-2020 - Dosyalama ve Arşivleme'},'BYA111-2020':{dersAdi:'BYA111-2020 - Temel Hukuk'},'BYA112-2020':{dersAdi:'BYA112-2020 - Ekonomi II'},'BYA113-2020':{dersAdi:'BYA113-2020 - Bilgi ve İletişim Teknolojisi'},'BYA150-2024':{dersAdi:'BYA150-2024 - İletişim'},'BYA154-2024':{dersAdi:'BYA154-2024 - Kalite Yönetim Sistemleri'},'BYA201-2020':{dersAdi:'BYA201-2020 - Büro Yönetimi'},'BYA202-2020':{dersAdi:'BYA202-2020 - Yönetici Asistanlığı'},'BYA205-2020':{dersAdi:'BYA205-2020 - Etkili ve Güzel Konuşma'},'BYA207-2020':{dersAdi:'BYA207-2020 - Muhasebe'},'BYA209-2020':{dersAdi:'BYA209-2020 - Sektör Uygulamaları I'},'BYA250-2024':{dersAdi:'BYA250-2024 - Bilgisayarlı Muhasebe Yazılımları'},'BYA251-2024':{dersAdi:'BYA251-2024 - Araştırma Yöntem ve Teknikleri'},'BYA252-2024':{dersAdi:'BYA252-2024 - Sektör Uygulamaları II'},'BYA253-2024':{dersAdi:'BYA253-2024 - Bilgi Yönetimi'},'BYA255-2024':{dersAdi:'BYA255-2024 - Halkla İlişkiler'},'BYA256-2024':{dersAdi:'BYA256-2024 - Örgütsel Davranış'},'BYA257-2024':{dersAdi:'BYA257-2024 - Meslek Etiği'},'BYA258-2024':{dersAdi:'BYA258-2024 - Müşteri İlişkileri Yönetimi'},'BYA259-2024':{dersAdi:'BYA259-2024 - Teknoloji Kullanımı'},'BYA260-2024':{dersAdi:'BYA260-2024 - Yönetim ve Organizasyon'},'BYA261-2024':{dersAdi:'BYA261-2024 - İnsan Kaynakları Yönetimi'},'BYA262-2024':{dersAdi:'BYA262-2024 - Kalite Yönetim Sistemleri'},'BYA263-2024':{dersAdi:'BYA263-2024 - Kamu Maliyesi'},'BYA264-2024':{dersAdi:'BYA264-2024 - Kamu ve Özel Kesim Yapısı'},'BYA265-2024':{dersAdi:'BYA265-2024 - İş ve Sosyal Güvenlik Hukuku'},'BYA266-2024':{dersAdi:'BYA266-2024 - Girişimcilik'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'İNG102-2020':{dersAdi:'İNG102-2020 - İngilizce II'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'}}},'bilgisayarArapgir':{bolumAdi:'Bilgisayar Programcılığı',dersler:{'BPR164-2024':{dersAdi:'BPR164-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'BPR274-2024':{dersAdi:'BPR274-2024 - Artırılmış Gerçeklik'},'BPR280-2024':{dersAdi:'BPR280-2024 - Görsel Efekt Teknikleri'},'BPR288-2024':{dersAdi:'BPR288-2024 - Sürdürülebilir Enerji Yönetimi'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkilap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkilap Tarihi II'},'BPR101-2024':{dersAdi:'BPR101-2024 - Algoritma ve Programlama I'},'BPR102-2020':{dersAdi:'BPR102-2020 - Nesne Tabanlı Programlama'},'BPR103-2020':{dersAdi:'BPR103-2020 - Grafik ve Animasyon I'},'BPR104-2020':{dersAdi:'BPR104-2020 - Grafik ve Animasyon II'},'BPR105-2024':{dersAdi:'BPR105-2024 - Ofis Programları'},'BPR106-2020':{dersAdi:'BPR106-2020 - Veri Tabanı I'},'BPR108-2024':{dersAdi:'BPR108-2024 - Algoritma ve Programlama II'},'BPR109-2020':{dersAdi:'BPR109-2020 - Yazılım Kurulumu ve Yönetimi'},'BPR113-2024':{dersAdi:'BPR113-2024 - Matematik'},'BPR114-2024':{dersAdi:'BPR114-2024 - Mesleki Matemetik'},'BPR115-2024':{dersAdi:'BPR115-2024 - Web Tasarımının Temelleri'},'BPR150-2024':{dersAdi:'BPR150-2024 - Bilgisayar Donanımı'},'BPR152-2024':{dersAdi:'BPR152-2024 - İşletim Sistemleri'},'BPR154-2024':{dersAdi:'BPR154-2024 - Bilgi ve İletişim Teknolojisi'},'BPR156-2024':{dersAdi:'BPR156-2024 - Proje Hazırlama'},'BPR158-2024':{dersAdi:'BPR158-2024 - Açık Kaynak İşletim Sistemi'},'BPR162-2024':{dersAdi:'BPR162-2024 - Klavye Teknikleri'},'BPR201-2024':{dersAdi:'BPR201-2024 - Veri Tabanı II'},'BPR203-2024':{dersAdi:'BPR203-2024 - Görsel Programlama I'},'BPR204-2024':{dersAdi:'BPR204-2024 - İnternet Programcılığı II'},'BPR205-2024':{dersAdi:'BPR205-2024 - İnternet programcılığı I'},'BPR209-2024':{dersAdi:'BPR209-2024 - Mobil Uygulama Geliştirme'},'BPR250-2024':{dersAdi:'BPR250-2024 - Görsel Programlama II'},'BPR251-2024':{dersAdi:'BPR251-2024 - Java Uygulamaları'},'BPR252-2024':{dersAdi:'BPR252-2024 - Oyun Programlama'},'BPR253-2024':{dersAdi:'BPR253-2024 - Veri Yapıları'},'BPR254-2024':{dersAdi:'BPR254-2024 - Mesleki Yabancı Dil'},'BPR255-2024':{dersAdi:'BPR255-2024 - Sistem Bakım ve Onarımı'},'BPR256-2024':{dersAdi:'BPR256-2024 - Bitirme Projesi'},'BPR257-2024':{dersAdi:'BPR257-2024 - Robotik'},'BPR258-2024':{dersAdi:'BPR258-2024 - Sunucu İşletim Sistemi'},'BPR259-2024':{dersAdi:'BPR259-2024 - Web Servisleri'},'BPR260-2024':{dersAdi:'BPR260-2024 - Python Programlama'},'BPR261-2024':{dersAdi:'BPR261-2024 - Blok Zinciri Uygulamaları'},'BPR262-2024':{dersAdi:'BPR262-2024 - Sayısal Görüntü İşleme'},'BPR263-2024':{dersAdi:'BPR263-2024 - Sayısal Elektronik'},'BPR264-2024':{dersAdi:'BPR264-2024 - Optimizasyon Teknikleri'},'BPR265-2024':{dersAdi:'BPR265-2024 - 3 Boyutlu Modelleme'},'BPR266-2024':{dersAdi:'BPR266-2024 - Veri Madenciliği'},'BPR267-2024':{dersAdi:'BPR267-2024 - Yazılım Mimarileri'},'BPR268-2024':{dersAdi:'BPR268-2024 - Sinyal İşleme'},'BPR269-2024':{dersAdi:'BPR269-2024 - Web Projesi Yönetimi'},'BPR271-2024':{dersAdi:'BPR271-2024 - Kriptoloji Algoritmaları'},'BPR272-2024':{dersAdi:'BPR272-2024 - Makine Öğrenmesi'},'BPR273-2024':{dersAdi:'BPR273-2024 - Gömülü Sistem Programlama'},'BPR275-2024':{dersAdi:'BPR275-2024 - Ağ Temelleri'},'BPR277-2024':{dersAdi:'BPR277-2024 - Sensörler'},'BPR278-2024':{dersAdi:'BPR278-2024 - Yapay Zekâ'},'BPR279-2024':{dersAdi:'BPR279-2024 - Veri Tabanı Güvenliği'},'BPR281-2024':{dersAdi:'BPR281-2024 - İçerik Yönetim Sistemleri'},'BPR282-2024':{dersAdi:'BPR282-2024 - E-Ticaret Uygulamaları'},'BPR283-2024':{dersAdi:'BPR283-2024 - İş Sağlığı ve Güvenliği'},'BPR284-2024':{dersAdi:'BPR284-2024 - C Programlama'},'BPR285-2024':{dersAdi:'BPR285-2024 - Kalite Güvencesi ve Standartları'},'BPR286-2024':{dersAdi:'BPR286-2024 - Siber Güvenlik Temelleri'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'İNG102-2020':{dersAdi:'İNG102-2020 - İngilizce II'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - Staj'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'},'BPR270-2024':{dersAdi:'BPR270-2024 - Mobil Oyun Programlama'},'BPR276-2024':{dersAdi:'BPR276-2024 - Nesnelerin İnterneti'},'BPR160-2024':{dersAdi:'BPR160-2024 - İleri Ofis Programları'}}},'bankacilik':{bolumAdi:'Bankacılık ve Sigortacılık',dersler:{'FBS134-2024':{dersAdi:'FBS134-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'FBS152-2024':{dersAdi:'FBS152-2024 - Bankacılıkta Veri Güvenliği'},'FBS154-2024':{dersAdi:'FBS154-2024 - Dijital Okur Yazarlık'},'FBS156-2024':{dersAdi:'FBS156-2024 - Halkla İlişkiler'},'FBS158-2024':{dersAdi:'FBS158-2024 - İnsan Kaynakları Yönetimi'},'FBS162-2024':{dersAdi:'FBS162-2024 - Uluslararası Ekonomi'},'FBS201-2024':{dersAdi:'FBS201-2024 - Hayat Dışı Sigortalar I'},'FBS205-2024':{dersAdi:'FBS205-2024 - Türkiye Ekonomisi'},'FBS252-2024':{dersAdi:'FBS252-2024 - Hayat Dışı Sigortalar II'},'FBS254-2024':{dersAdi:'FBS254-2024 - Banka ve Sigorta İstatistiği'},'FBS257-2024':{dersAdi:'FBS257-2024 - Bireysel ve Kurumsal Bankacılık'},'FBS259-2024':{dersAdi:'FBS259-2024 - Dönem Sonu İşlemleri'},'FBS261-2024':{dersAdi:'FBS261-2024 - Etkili Konuşma ve İletişim Teknikleri'},'FBS262-2024':{dersAdi:'FBS262-2024 - Banka Denetimi'},'FBS263-2024':{dersAdi:'FBS263-2024 - Mali Analiz'},'FBS264-2024':{dersAdi:'FBS264-2024 - Bankacılık Ürün ve Hizmetleri'},'FBS265-2024':{dersAdi:'FBS265-2024 - Mesleki Yabancı Dil I'},'FBS266-2024':{dersAdi:'FBS266-2024 - Enflasyon Muhasebesi'},'FBS267-2024':{dersAdi:'FBS267-2024 - Müşteri İlişkileri ve Yönetimi'},'FBS268-2024':{dersAdi:'FBS268-2024 - Katılım Bankacılığı ve Sigortacılığı'},'FBS270-2024':{dersAdi:'FBS270-2024 - Mesleki Yabancı Dil II'},'FBS272-2024':{dersAdi:'FBS272-2024 - Toplam Kalite Yönetimi'},'FBS274-2024':{dersAdi:'FBS274-2024 - Sürdürülebilir Kalkınma'},'FBS276-2024':{dersAdi:'FBS276-2024 - Yasalar ve Sürdürülebilirlik'},'AİİT101-2020':{dersAdi:'AİİT101-2020 - Atatürk İlkeleri ve İnkılap Tarihi I'},'AİİT102-2020':{dersAdi:'AİİT102-2020 - Atatürk İlkeleri ve İnkılap Tarihi II'},'FBS103-2024':{dersAdi:'FBS103-2024 - Bankacılığa ve Sigortacılığa Giriş'},'FBS104-2024':{dersAdi:'FBS104-2024 - Banka ve Sigorta Mevzuatı'},'FBS105-2024':{dersAdi:'FBS105-2024 - Genel Muhasebe'},'FBS106-2024':{dersAdi:'FBS106-2024 - İktisada Giriş II'},'FBS107-2024':{dersAdi:'FBS107-2024 - İktisada Giriş I'},'FBS108-2024':{dersAdi:'FBS108-2024 - Girişimcilik'},'FBS109-2024':{dersAdi:'FBS109-2024 - Bilgi ve İletişim Teknolojisi'},'FBS110-2020':{dersAdi:'FBS110-2020 - İşletme Yönetimi'},'FBS111-2020':{dersAdi:'FBS111-2020 - Temel Hukuk'},'FBS112-2024':{dersAdi:'FBS112-2024 - Finans Matematiği'},'FBS113-2024':{dersAdi:'FBS113-2024 - Mesleki Matematik'},'FBS114-2020':{dersAdi:'FBS114-2020 - Ofis Programları'},'FBS150-2024':{dersAdi:'FBS150-2024 - Ticaret Hukku'},'FBS160-2024':{dersAdi:'FBS160-2024 - Meslek Etiği'},'FBS202-2024':{dersAdi:'FBS202-2024 - Finansal Yönetim'},'FBS203-2024':{dersAdi:'FBS203-2024 - Para Teorisi ve Politikası'},'FBS207-2024':{dersAdi:'FBS207-2024 - Bes, Hayat ve Sağlık Sigortaları'},'FBS250-2024':{dersAdi:'FBS250-2024 - Banka ve Sigorta Pazarlaması'},'FBS251-2024':{dersAdi:'FBS251-2024 - Borçlar Hukuku'},'FBS253-2024':{dersAdi:'FBS253-2024 - Paket Programlar'},'FBS255-2024':{dersAdi:'FBS255-2024 - Banka ve Sigorta Muhasebesi'},'FBS256-2024':{dersAdi:'FBS256-2024 - Araştırma Yöntem ve Teknikleri'},'FBS258-2024':{dersAdi:'FBS258-2024 - Finansal Piyasalar ve Kurumlar'},'FBS260-2024':{dersAdi:'FBS260-2024 - Dış Ticaret İşlemleri ve Muhasebesi'},'İNG101-2020':{dersAdi:'İNG101-2020 - İngilizce I'},'İNG102-2020':{dersAdi:'İNG102-2020 - İngilizce II'},'STAJ100-2024':{dersAdi:'STAJ100-2024 - Staj'},'TDB101-2020':{dersAdi:'TDB101-2020 - Türk Dili I'},'TDB102-2020':{dersAdi:'TDB102-2020 - Türk Dili II'}}},'isMakineleri':{bolumAdi:'İş Makineleri Operatörlüğü',dersler:{'İMO160-2024':{dersAdi:'İMO160-2024 - Hibrit ve Elektrikli Araçlar'},'İMO162-2024':{dersAdi:'İMO162-2024 - Sosyal Girişimcilik ve Sürdürülebilirlik'},'İMO250-2021':{dersAdi:'İMO250-2021 - Taşıt Aerodinamiği'},'İMO252-2021':{dersAdi:'İMO252-2021 - Taşıtlarda Mekanik Titreşim'},'İMO254-2024':{dersAdi:'İMO254-2024 - Mesleki Yabancı Dil II'},'İMO256-2024':{dersAdi:'İMO256-2024 - Yakıt Pilleri ve Bataryalar'},'İMO258-2024':{dersAdi:'İMO258-2024 - Servis Yönetimi ve Müşteri İlişkileri'},'İMO260-2024':{dersAdi:'İMO260-2024 - Hasar Tespiti, Analizi ve Sigorta'},'İMO262-2024':{dersAdi:'İMO262-2024 - Araç Muayene Yasal Çerçevesi ve Uygulamaları'},'İMO264-2024':{dersAdi:'İMO264-2024 - Otomotiv Elektromekanik Teknolojileri'},'İMO268-2024':{dersAdi:'İMO268-2024 - Kaza Yeri İnceleme ve Bilirkişilik'},'İMO271-2024':{dersAdi:'İMO271-2024 - Ağır Vasıta Teknolojileri'},'İMO272-2024':{dersAdi:'İMO272-2024 - İşletme Yönetimi'},'İMO275-2024':{dersAdi:'İMO275-2024 - Mesleki Yabancı Dil I'},'İMO277-2024':{dersAdi:'İMO277-2024 - Motor Yenileştirme'},'İMO279-2024':{dersAdi:'İMO279-2024 - Bilgisayar Kontrollü Takım Tezgahları'},'İMO281-2024':{dersAdi:'İMO281-2024 - Otomotivde Robot Teknolojileri'},'İMO283-2024':{dersAdi:'İMO283-2024 - Otomotiv Elektroniği'},'İMO292-2024':{dersAdi:'İMO292-2024 - Sürdürülebilir Enerji Yönetimi'},'İMO253-2024':{dersAdi:'İMO253-2024 - Mukavemet'},'İMO274-2024':{dersAdi:'İMO274-2024 - Kalite Yönetim Sistemleri'},'İMO276-2024':{dersAdi:'İMO276-2024 - Mesleki Teknik Yöntemler'},'AİİT101-2021':{dersAdi:'AİİT101-2021 - Atatürk İlkeleri ve İnkılap Tarihi I'},'AİİT102-2021':{dersAdi:'AİİT102-2021 - Atatürk İlkeleri ve İnkılap Tarihi II'},'İMO101-2024':{dersAdi:'İMO101-2024 - Motor Teknolojisi'},'İMO103-2024':{dersAdi:'İMO103-2024 - İş Makinelerine Giriş'},'İMO104-2021':{dersAdi:'İMO104-2021 - Dizel Motorlar ve Enjeksiyon Sistemleri'},'İMO107-2024':{dersAdi:'İMO107-2024 - Fizik'},'İMO110-2021':{dersAdi:'İMO110-2021 - Meslek Resim'},'İMO111-2021':{dersAdi:'İMO111-2021 - Matematik I'},'İMO112-2021':{dersAdi:'İMO112-2021 - Mesleki Matematik I'},'İMO113-2024':{dersAdi:'İMO113-2024 - Termodinamik'},'İMO114-2021':{dersAdi:'İMO114-2021 - Hidrolik Pnömatik'},'İMO115-2024':{dersAdi:'İMO115-2024 - Malzeme Teknolojisi'},'İMO116-2024':{dersAdi:'İMO116-2024 - Bilgi ve İletişim Teknolojileri'},'İMO117-2024':{dersAdi:'İMO117-2024 - İş Güvenliği ve İşçi Sağlığı'},'İMO150-2024':{dersAdi:'İMO150-2024 - Ölçme Tekniği'},'İMO152-2024':{dersAdi:'İMO152-2024 - Otomotiv Elektriği'},'İMO154-2024':{dersAdi:'İMO154-2024 - Konfor Sistemleri'},'İMO156-2024':{dersAdi:'İMO156-2024 - İletişim'},'İMO158-2024':{dersAdi:'İMO158-2024 - Emisyon Kontrol Sistemleri'},'İMO201-2024':{dersAdi:'İMO201-2024 - İş Makineleri Bakım ve Onarımı I'},'İMO202-2021':{dersAdi:'İMO202-2021 - İş Makineleri Bakım ve Onarımı II'},'İMO203-2021':{dersAdi:'İMO203-2021 - Kazıcı ve Yükleyiciler'},'İMO205-2024':{dersAdi:'İMO205-2024 - Makine Elemanları'},'İMO207-2024':{dersAdi:'İMO207-2024 - Güç Aktarma Organları'},'İMO209-2021':{dersAdi:'İMO209-2021 - Mekanizma Tekniği'},'İMO212-2024':{dersAdi:'İMO212-2024 - Staj'},'İMO251-2024':{dersAdi:'İMO251-2024 - Yakıtlar ve Yağlar'},'İMO255-2024':{dersAdi:'İMO255-2024 - Buji Ateşlemeli Motorların Yakıt ve Ateşleme Sistemleri'},'İMO257-2024':{dersAdi:'İMO257-2024 - Araştırma Yöntem ve Teknikleri'},'İMO259-2024':{dersAdi:'İMO259-2024 - Kalite Güvencesi ve Standartları'},'İMO261-2024':{dersAdi:'İMO261-2024 - Sürdürülebilir Çevre Yönetimi'},'İMO263-2024':{dersAdi:'İMO263-2024 - Bilgisayar Destekli Tasarım'},'İMO266-2024':{dersAdi:'İMO266-2024 - Taşıtlarda Haberleşme Sistemleri'},'İMO270-2024':{dersAdi:'İMO270-2024 - Lojistik ve Stok Yönetimi'},'İMO278-2024':{dersAdi:'İMO278-2024 - Isıtma ve Soğutma Sistemleri'},'İMO280-2024':{dersAdi:'İMO280-2024 - Sistem Analizi ve Tasarımı'},'İMO284-2024':{dersAdi:'İMO284-2024 - Vinçler ve Forkliftler'},'İMO286-2024':{dersAdi:'İMO286-2024 - Transport Tekniği'},'İMO288-2024':{dersAdi:'İMO288-2024 - İş Makineleri Operatörlüğü'},'İMO290-2024':{dersAdi:'İMO290-2024 - Bilgisayar Destekli Çizim'},'İNG101-2021':{dersAdi:'İNG101-2021 - İngilizce I'},'İNG102-2021':{dersAdi:'İNG102-2021 - İngilizce II'},'TDB101-2021':{dersAdi:'TDB101-2021 - Türk Dili I'},'TDB102-2021':{dersAdi:'TDB102-2021 - Türk Dili II'},'İMO273-2024':{dersAdi:'İMO273-2024 - Hareket Kontrol Sistemleri'},'İMO265-2024':{dersAdi:'İMO265-2024 - Pompalar ve Kompresörler'},'İMO267-2024':{dersAdi:'İMO267-2024 - Servo ve Oransal Kontrol'},'İMO269-2024':{dersAdi:'İMO269-2024 - Kaynak Teknolojisi'},'İMO282-2024':{dersAdi:'İMO282-2024 - Alternatif Motor ve Yakıt Sistemleri'}}}}}}};
+        const BLOOM_TAKS_FILLERI = { hatirlama: ['tanımlar', 'listeler', 'belirtir', 'isimlendirir'], anlama: ['açıklar', 'özetler', 'örneklendirir', 'yorumlar'], uygulama: ['uygular', 'kullanır', 'hesaplar', 'çözer'], analiz: ['analiz eder', 'ilişkilendirir', 'karşılaştırır', 'ayırt eder'], degerlendirme: ['değerlendirir', 'eleştirir', 'savunur', 'gerekçelendirir'] };
+        const TYYC_BLOOM_ILISKISI = { hatirlama: { alan: "Bilgi (Kuramsal/Olgusal)" }, anlama: { alan: "Bilgi (Kuramsal/Olgusal)" }, uygulama: { alan: "Beceri (Bilişsel/Uygulamalı)" }, analiz: { alan: "Beceri (Bilişsel/Uygulamalı)" }, degerlendirme: { alan: "Yetkinlik (Öğrenme/Alana Özgü)" } };
+        const ZAYIF_FILLER = ['anlar', 'bilir', 'kavrar', 'farkında olur', 'öğrenir', 'aşina olur', 'takdir eder', 'hakkında bilgi sahibi olur', 'tanır'];
+
+        // --- Sayfa Yüklendiğinde Menüleri Doldurma ---
+        document.addEventListener('DOMContentLoaded', function() { /* ... Öncekiyle aynı ... */ const okulMenu=document.getElementById('okulSecimMenu'),bolumMenu=document.getElementById('bolumSecimMenu'),dersMenu=document.getElementById('dersSecimMenu');Object.keys(TUM_VERILER).forEach(e=>{let t=new Option(TUM_VERILER[e].okulAdi,e);okulMenu.appendChild(t)}),okulMenu.addEventListener('change',function(){bolumMenu.innerHTML='<option value="">Önce Yüksekokul seçin...</option>',dersMenu.innerHTML='<option value="">Önce Bölüm seçin...</option>',bolumMenu.disabled=!0,dersMenu.disabled=!0,this.value&&(bolumMenu.innerHTML='<option value="">Lütfen bir bölüm seçin...</option>',Object.keys(TUM_VERILER[this.value].bolumler).forEach(e=>{let t=new Option(TUM_VERILER[this.value].bolumler[e].bolumAdi,e);bolumMenu.appendChild(t)}),bolumMenu.disabled=!1)}),bolumMenu.addEventListener('change',function(){dersMenu.innerHTML='<option value="">Önce Bölüm seçin...</option>',dersMenu.disabled=!0,okulMenu.value&&this.value&&(dersMenu.innerHTML='<option value="">Lütfen bir ders seçin...</option>',Object.keys(TUM_VERILER[okulMenu.value].bolumler[this.value].dersler).forEach(e=>{let t=new Option(TUM_VERILER[okulMenu.value].bolumler[this.value].dersler[e].dersAdi,e);dersMenu.appendChild(t)}),dersMenu.disabled=!1)})});
+
+        // --- TEMEL ANALİZ VE YARDIMCI FONKSİYONLAR ---
+        function normalizeText(text) { return text.toLowerCase().replace(/[.,;]/g, '').trim(); }
+        function ogrenmeCiktisiUret(dersAdi) { /* ... Öncekiyle aynı ... */ const konu=dersAdi.split(" - ")[1].toLowerCase().replace(/ı/g,"i").replace("...",""),ciktilar={hatirlama:{fiiller:["tanımlar","listeler","belirtir"],sablonlar:[`${konu} alanındaki temel kavramları ve terminolojiyi {fiil}.`,`${konu} ile ilgili ana unsurları {fiil}.`]},anlama:{fiiller:["açıklar","özetler","örneklendirir"],sablonlar:[`Temel ${konu} prensiplerini ve süreçlerini kendi cümleleriyle {fiil}.`,`${konu} konusunun önemini bir örnek üzerinden {fiil}.`]},uygulama:{fiiller:["uygular","kullanır","hesaplar"],sablonlar:[`Verilen basit bir problemi çözmek için ${konu} yöntemlerini {fiil}.`,`${konu} bilgisini kullanarak standart bir işlemi {fiil}.`]},analiz:{fiiller:["analiz eder","ilişkilendirir","karşılaştırır"],sablonlar:[`${konu} içerisindeki temel bileşenler arasındaki ilişkileri {fiil}.`,`Bir ${konu} probleminde sebep-sonuç ilişkisini {fiil}.`]},degerlendirme:{fiiller:["değerlendirir","eleştirir","gerekçelendirir"],sablonlar:[`${konu} alanındaki bir uygulamanın etkinliğini temel kriterlere göre {fiil}.`,`Farklı ${konu} çözümlerinin avantaj ve dezavantajlarını {fiil}.`]}},uretilenCiktilar=[];for(const seviye in ciktilar){const fiilHavuzu=ciktilar[seviye].fiiller,sablonHavuzu=ciktilar[seviye].sablonlar,secilenFiil=fiilHavuzu[Math.floor(Math.random()*fiilHavuzu.length)],secilenSablon=sablonHavuzu[Math.floor(Math.random()*sablonHavuzu.length)];let yeniCikti=secilenSablon.replace("{fiil}",secilenFiil);uretilenCiktilar.push(yeniCikti.charAt(0).toUpperCase()+yeniCikti.slice(1))}return uretilenCiktilar}
+        function fiilVeSeviyeTespiti(cumle) { const normCumle=normalizeText(cumle);for(const seviye in BLOOM_TAKS_FILLERI)for(const fiil of BLOOM_TAKS_FILLERI[seviye])if(normCumle.endsWith(fiil))return{fiil,seviye};return{fiil:null,seviye:null}}
+        function findBestProgramOutcomeMatch(learningOutcome, programOutcomes) { const loWords=new Set(normalizeText(learningOutcome).split(/\s+/).filter(w=>w.length>3));let bestScore=-1,bestMatchIndex=-1;return programOutcomes.forEach((po,index)=>{const poWords=new Set(normalizeText(po).split(/\s+/).filter(w=>w.length>3));let intersectionSize=0;loWords.forEach(word=>{poWords.has(word)&&intersectionSize++});const unionSize=loWords.size+poWords.size-intersectionSize,score=0===unionSize?0:intersectionSize/unionSize;score>bestScore&&(bestScore=score,bestMatchIndex=index)}),{text:programOutcomes[bestMatchIndex],score:bestScore,index:bestMatchIndex+1}}
+        
+        // --- YENİ EKLENEN DETAYLI ANALİZ FONKSİYONU ---
+        function ayrintiliAnalizEt(ogrenmeCiktisi) {
+            let feedback = [];
+            const normText = normalizeText(ogrenmeCiktisi);
+            const kelimeler = normText.split(/\s+/);
+            const sonKelime = kelimeler[kelimeler.length - 1];
+
+            // 1. Fiil Analizi (Ölçülebilirlik)
+            const fiilAnalizi = fiilVeSeviyeTespiti(ogrenmeCiktisi);
+            if (fiilAnalizi.fiil) {
+                feedback.push({type: 'success', message: `<strong>Güçlü Fiil:</strong> '${fiilAnalizi.fiil}' fiili kullanılmış. Bu, çıktının gözlemlenebilir ve ölçülebilir olduğunu gösteriyor.`});
+            } else if (ZAYIF_FILLER.includes(sonKelime)) {
+                feedback.push({type: 'error', message: `<strong>Zayıf Fiil:</strong> '${sonKelime}' fiili ölçülmesi zor bir ifadedir. Bunun yerine 'tanımlar, listeler, hesaplar, analiz eder, karşılaştırır' gibi eyleme dönük fiiller kullanmayı düşünün.`});
+            } else {
+                feedback.push({type: 'warning', message: `<strong>Eylem Fiili Eksik:</strong> Çıktının sonunda gözlemlenebilir bir eylem fiili bulunamadı. Cümlenin, öğrencinin ne yapacağını belirten bir fiil ile bitmesi gerekir.`});
+            }
+
+            // 2. Tek Eylem Kuralı
+            if (ogrenmeCiktisi.includes(' ve ') || ogrenmeCiktisi.includes(' veya ')) {
+                 feedback.push({type: 'warning', message: `<strong>Çoklu Eylem:</strong> Çıktı, 've' veya 'veya' bağlacı içeriyor olabilir. Her öğrenme çıktısı ideal olarak tek bir eylemi ve beceriyi hedeflemelidir. Bu çıktıyı iki ayrı çıktıya bölmeyi düşünün.`});
+            } else {
+                 feedback.push({type: 'success', message: `<strong>Tek Eylem:</strong> Çıktı, tek ve odaklanmış bir eylemi hedefliyor. Bu, ölçmeyi kolaylaştırır.`});
+            }
+
+            // 3. İyileştirme Önerileri (Koşul ve Standart)
+            feedback.push({type: 'info', message: `<strong>İyileştirme Önerisi (Koşul):</strong> Çıktıyı daha da güçlendirmek için eylemin hangi koşulda yapılacağını ekleyebilirsiniz. Örnek: '<em>Verilen bir devre şeması üzerinde...</em>'`});
+            feedback.push({type: 'info', message: `<strong>İyileştirme Önerisi (Standart):</strong> Performansın hangi standartta veya ne kadar iyi olması gerektiğini belirtebilirsiniz. Örnek: '<em>...Ohm yasasını kullanarak hatasız bir şekilde hesaplar.</em>'`});
+
+            return feedback;
+        }
+
+        // --- YENİ EKLENEN DETAYLI GÖSTERİM FONKSİYONU ---
+        function duzeltmeleriGoster(ozelCikti, genelAnaliz, detayliGeriBildirim) {
+            let html = `<h2>Özel Çıktı Analizi ve Geliştirme Raporu</h2>`;
+
+            // Genel Analiz Bölümü
+            html += `
+                <div class="analiz-blogu">
+                    <h4>Yazdığınız Öğrenme Çıktısı</h4>
+                    <div class="analiz-icerik" style="font-weight:bold; font-style:italic;">"${ozelCikti}"</div>
+                </div>
+                <div class="analiz-blogu">
+                    <h4>Genel Değerlendirme</h4>
+                    <div class="analiz-icerik">${donusVer(genelAnaliz, true)}</div>
+                </div>
+            `;
+            
+            // Detaylı Geri Bildirim Bölümü
+            html += `
+                <div class="detailed-feedback-container">
+                    <div class="detailed-feedback-header">Detaylı Geri Bildirim ve Öneriler</div>
+                    <div class="detailed-feedback-body">
+                        <ul>
+                            ${detayliGeriBildirim.map(item => `
+                                <li class="${item.type}">
+                                    <div class="icon">${item.type === 'success' ? '✔' : item.type === 'warning' ? '⚠️' : item.type === 'error' ? '❌' : '💡'}</div>
+                                    <div class="text">${item.message}</div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            return html;
+        }
+
+
+        function donusVer(analizSonuclari, isOzelAnaliz = false) {
+            const { fiilAnalizi, bestMatch } = analizSonuclari;
+            let html = '';
+            
+            function createFeedbackItem(type, icon, status, message) {
+                return `<div class="feedback-item ${type}"><div class="icon">${icon}</div><div class="text"><span class="status ${type}">${status}</span>${message}</div></div>`;
+            }
+            
+            if (!isOzelAnaliz) { // Sadece otomatik oluşturmada bu başlığı göster
+                 html += createFeedbackItem('success', '✔', 'Ölçülebilir', 'Çıktı, gözlemlenebilir bir eyleme dayanıyor.');
+            }
+
+            if(fiilAnalizi.fiil) {
+                const tyycBilgi = TYYC_BLOOM_ILISKISI[fiilAnalizi.seviye];
+                html += createFeedbackItem('success', '🧠', `Bilişsel Seviye: ${fiilAnalizi.seviye.toUpperCase()}`, `Bu seviye, önlisans düzeyi için uygundur.`);
+                html += createFeedbackItem('info', '🔗', `TYYÇ İlişkisi: ${tyycBilgi.alan}`, `Bu seviye, TYYÇ'nin <strong>'${tyycBilgi.alan}'</strong> ana yeterlilik alanı ile ilişkilidir.`);
+            } else {
+                 html += createFeedbackItem('error', '❓', 'Bilişsel Seviye Belirlenemedi', 'Tanınan bir eylem fiili bulunamadığı için Bloom Taksonomisi seviyesi ve TYYÇ ilişkisi kurulamadı.');
+            }
+            
+            let matchStatus, matchIcon, matchClass;
+            if (bestMatch.score > 0.15) { 
+                matchStatus = "Yüksek Uyum"; matchIcon = '🎯'; matchClass = 'success';
+            } else if (bestMatch.score > 0.05) {
+                matchStatus = "Orta Uyum"; matchIcon = '🤔'; matchClass = 'warning';
+            } else {
+                matchStatus = "Düşük Uyum"; matchIcon = '⚠️'; matchClass = 'error';
+            }
+            const message = `Bu çıktının en çok ilişkili olduğu program çıktısı: <strong>(PÇ-${bestMatch.index}):</strong> "${bestMatch.text}"`;
+            html += createFeedbackItem(matchClass, matchIcon, 'Program Çıktısı Uyumu', message);
+
+            return html;
+        }
+
+        // --- ANA FONKSİYONLAR ---
+        function ciktilariOlusturVeAnalizEt() {
+            const okulKey = document.getElementById('okulSecimMenu').value;
+            const bolumKey = document.getElementById('bolumSecimMenu').value;
+            const dersKey = document.getElementById('dersSecimMenu').value;
+            const sonucAlani = document.getElementById('sonucAlani');
+            
+            if (!okulKey || !bolumKey || !dersKey) {
+                alert('Lütfen Yüksekokul, Bölüm ve Ders seçimi yapınız.');
+                return;
+            }
+            
+            document.getElementById('ozelSonucAlani').style.display = 'none';
+
+            const bolumVerisi = TUM_VERILER[okulKey].bolumler[bolumKey];
+            const dersVerisi = bolumVerisi.dersler[dersKey];
+            const programCiktilari = PROGRAM_CIKTILARI_SABLONLARI[bolumKey];
+            const ogrenmeCiktilari = ogrenmeCiktisiUret(dersVerisi.dersAdi);
+            let html = '';
+
+            html += `<div class="program-ciktilari-kutusu"><h3>'${bolumVerisi.bolumAdi}' Program Çıktıları (PÇ)</h3><ul>${programCiktilari.map((pc, index) => `<li><strong>PÇ-${index + 1}:</strong> ${pc}</li>`).join('')}</ul></div><h2>'${dersVerisi.dersAdi}' için Otomatik Oluşturulan Öğrenme Çıktıları ve Analizleri</h2>`;
+
+            for (const ogrenmeCiktisi of ogrenmeCiktilari) {
+                const analizSonuclari = {
+                    fiilAnalizi: fiilVeSeviyeTespiti(ogrenmeCiktisi),
+                    bestMatch: findBestProgramOutcomeMatch(ogrenmeCiktisi, programCiktilari)
+                };
+                const analizHtml = donusVer(analizSonuclari);
+                html += `<div class="analiz-blogu"><h4>${ogrenmeCiktisi}</h4><div class="analiz-icerik">${analizHtml}</div></div>`;
+            }
+            sonucAlani.innerHTML = html;
+            sonucAlani.style.display = 'block';
+        }
+
+        function ozelCiktiyiAnalizEt() {
+            const ozelCiktiInput = document.getElementById('ozelCiktiInput');
+            const ozelCikti = ozelCiktiInput.value.trim();
+            const okulKey = document.getElementById('okulSecimMenu').value;
+            const bolumKey = document.getElementById('bolumSecimMenu').value;
+            const ozelSonucAlani = document.getElementById('ozelSonucAlani');
+
+            if (!ozelCikti) {
+                alert('Lütfen analiz edilecek bir öğrenme çıktısı yazın.');
+                return;
+            }
+            if (!okulKey || !bolumKey) {
+                alert('Analiz yapabilmek için lütfen önce bir Yüksekokul ve Bölüm seçin.');
+                return;
+            }
+
+            document.getElementById('sonucAlani').style.display = 'none';
+            
+            const programCiktilari = PROGRAM_CIKTILARI_SABLONLARI[bolumKey];
+            
+            // 1. Genel Analiz (Seviye ve Program Uyumu)
+            const genelAnaliz = {
+                fiilAnalizi: fiilVeSeviyeTespiti(ozelCikti),
+                bestMatch: findBestProgramOutcomeMatch(ozelCikti, programCiktilari)
+            };
+
+            // 2. Detaylı Yapısal Analiz ve Düzeltme Önerileri
+            const detayliGeriBildirim = ayrintiliAnalizEt(ozelCikti);
+
+            // 3. Sonuçları Ekranda Göster
+            ozelSonucAlani.innerHTML = duzeltmeleriGoster(ozelCikti, genelAnaliz, detayliGeriBildirim);
+            ozelSonucAlani.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
